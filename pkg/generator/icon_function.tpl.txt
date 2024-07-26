@@ -1,0 +1,4 @@
+templ $FUNCION-NAME$($FUNCTION-PARAMS$) {
+    $FUNCTION-BODY$
+}
+
