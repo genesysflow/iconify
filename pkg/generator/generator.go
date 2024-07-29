@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/genesysflow/iconify/pkg/api/iconify"
@@ -11,8 +12,9 @@ import (
 )
 
 type IconifyGenerator struct {
-	API string
-	CWD string
+	API            string
+	CWD            string
+	GeneratedIcons map[string][]string
 }
 
 // walk through the collections and generate the icons
@@ -23,8 +25,9 @@ func Generate(api string) {
 	}
 
 	generator := IconifyGenerator{
-		API: api,
-		CWD: cwd,
+		API:            api,
+		CWD:            cwd,
+		GeneratedIcons: make(map[string][]string),
 	}
 
 	collections, err := iconify.GetCollections(api)
@@ -33,6 +36,7 @@ func Generate(api string) {
 	}
 
 	for _, collection := range collections {
+		generator.GeneratedIcons[collection.Key] = []string{}
 		iconCollection, err := iconify.GetIconCollection(api, collection.Key)
 		if err != nil {
 			return
@@ -62,18 +66,19 @@ func (i *IconifyGenerator) generateFromCategory(category, prefix string, icons [
 	defer file.Close()
 
 	for _, icon := range icons {
-		body, err := iconify.GetIcon(i.API, prefix, icon)
-		if err != nil {
-			return
-		}
-		i.generateIcon(file, icon, body)
+		i.generateIcon(file, prefix, icon)
 	}
 }
 
 var iconFunctionTemplate = ""
 
 // add an icon function to the file
-func (i *IconifyGenerator) generateIcon(file *os.File, icon, body string) {
+func (i *IconifyGenerator) generateIcon(file *os.File, prefix, icon string) {
+	body, err := iconify.GetIcon(i.API, prefix, icon)
+	if err != nil {
+		return
+	}
+
 	functionName := getIconFunctionName(icon)
 	if iconFunctionTemplate == "" {
 		data, err := os.ReadFile(i.CWD + "/pkg/generator/icon_function.tpl.txt")
@@ -83,10 +88,16 @@ func (i *IconifyGenerator) generateIcon(file *os.File, icon, body string) {
 		}
 		iconFunctionTemplate = string(data)
 	}
+
+	if slices.Contains(i.GeneratedIcons[prefix], functionName) {
+		return
+	}
+
 	iconFunction := strings.ReplaceAll(iconFunctionTemplate, "$FUNCION-NAME$", functionName)
 	iconFunction = strings.ReplaceAll(iconFunction, "$FUNCTION-PARAMS$", "")
 	iconFunction = strings.ReplaceAll(iconFunction, "$FUNCTION-BODY$", body)
 	file.WriteString(iconFunction)
+	i.GeneratedIcons[prefix] = append(i.GeneratedIcons[prefix], functionName)
 }
 
 // create a file to store the icon functions
