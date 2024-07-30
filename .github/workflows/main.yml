@@ -26,10 +26,15 @@ jobs:
           go-version: '1.22'
 
       - name: Install dependencies
-        run: go mod tidy
+        run: |
+          go mod tidy
+          go install github.com/a-h/templ/cmd/templ@latest
 
       - name: Generate icons
         run: go run cmd/generator/generator.go
+
+      - name: Compile templates
+        run: templ generate
       
       - name: Set up Git
         run: |
