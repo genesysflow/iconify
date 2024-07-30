@@ -65,18 +65,29 @@ func (i *IconifyGenerator) generateFromCategory(category, prefix string, icons [
 	}
 	defer file.Close()
 
+	hasGeneratedIcon := false
 	for _, icon := range icons {
-		i.generateIcon(file, prefix, icon)
+		res := i.generateIcon(file, prefix, icon)
+		if res {
+			hasGeneratedIcon = true
+		}
+	}
+
+	if !hasGeneratedIcon {
+		err = os.Remove(filePath)
+		if err != nil {
+			log.Fatal("Error removing empty file: ", err)
+		}
 	}
 }
 
 var iconFunctionTemplate = ""
 
-// add an icon function to the file
-func (i *IconifyGenerator) generateIcon(file *os.File, prefix, icon string) {
+// add an icon function to the file and return true if the icon was added
+func (i *IconifyGenerator) generateIcon(file *os.File, prefix, icon string) bool {
 	body, err := iconify.GetIcon(i.API, prefix, icon)
 	if err != nil {
-		return
+		return false
 	}
 
 	functionName := getIconFunctionName(icon)
@@ -84,13 +95,13 @@ func (i *IconifyGenerator) generateIcon(file *os.File, prefix, icon string) {
 		data, err := os.ReadFile(i.CWD + "/pkg/generator/icon_function.tpl.txt")
 		if err != nil {
 			log.Fatal(err)
-			return
+			return false
 		}
 		iconFunctionTemplate = string(data)
 	}
 
 	if slices.Contains(i.GeneratedIcons[prefix], functionName) {
-		return
+		return false
 	}
 
 	iconFunction := strings.ReplaceAll(iconFunctionTemplate, "$FUNCION-NAME$", functionName)
@@ -98,6 +109,8 @@ func (i *IconifyGenerator) generateIcon(file *os.File, prefix, icon string) {
 	iconFunction = strings.ReplaceAll(iconFunction, "$FUNCTION-BODY$", body)
 	file.WriteString(iconFunction)
 	i.GeneratedIcons[prefix] = append(i.GeneratedIcons[prefix], functionName)
+
+	return true
 }
 
 // create a file to store the icon functions
