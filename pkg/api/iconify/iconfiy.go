@@ -10,7 +10,7 @@ import (
 func GetCollections(api string) ([]Collection, error) {
 	var result map[string]Collection
 
-	resp, err := http.Get(api + "/collections")
+	resp, err := http.Get(api + "/collections?prefix=mdi,fa")
 
 	if err != nil {
 		log.Fatal("Error getting collections:", err)

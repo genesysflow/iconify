@@ -11,7 +11,6 @@ import (
 )
 
 func Generate(api string) {
-	// Do Stuff Here
 	collections, err := iconify.GetCollections(api)
 	if err != nil {
 		return
