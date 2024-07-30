@@ -44,6 +44,8 @@ jobs:
       - name: Create Tag
         id: tag
         run: |
+          git add .
+          git commit -m "Automated commit message"
           # Create the tag
           git tag ${{ github.event.inputs.tag }}
           
