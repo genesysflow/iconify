@@ -8,7 +8,7 @@
 ## Features
 
 - Easy integration of Iconify icons in Templ templates
-- Supports all icons available in Iconify
+- No API calls are needed. Just use the template functions to get an SVG.
 - Lightweight and simple to use
 - Supported icon sets:
     - mdi
