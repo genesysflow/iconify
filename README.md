@@ -10,6 +10,9 @@
 - Easy integration of Iconify icons in Templ templates
 - Supports all icons available in Iconify
 - Lightweight and simple to use
+- Supported icon sets:
+    - mdi
+    - fa
 
 ## Installation
 
@@ -32,11 +35,3 @@ import (
 templ Example() {
     @mdi.IconAlien()
 }
-
-```
-
-## Usage
-
-Chose any of the icons available at: https://icon-sets.iconify.design let's take Mateial Symbols Light for example and we chose the icon:[data-table-outline-sharp](https://icon-sets.iconify.design/material-symbols-light/data-table-outline-sharp)
-
-In order to use this icon we have to import the package  "github.com/genesysflow/iconify/materialsymbolslight" and use the function materialsymbolslight.IconDataTableOutlineSharp()
