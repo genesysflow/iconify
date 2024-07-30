@@ -1,0 +1,46 @@
+name: Release
+
+on: 
+  workflow_dispatch:
+    inputs:
+      tag:   
+        required: true
+        description: 'The version to publish with'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      iconifyApi:
+        image: iconify/api
+        ports:
+          - 3000:3000
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Generate icons
+        run: go run cmd/generator/generator.go
+      
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+      - name: Create Tag
+        id: tag
+        run: |
+          # Create the tag
+          git tag ${{ github.event.inputs.tag }}
+          
+          # Push the tag to the repository
+          git push origin ${{ github.event.inputs.tag }}
