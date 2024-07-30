@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          go mod tidy
+          go mod download
           go install github.com/a-h/templ/cmd/templ@latest
 
       - name: Generate icons

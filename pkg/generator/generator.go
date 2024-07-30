@@ -88,7 +88,7 @@ func generateIconPackage(cwd, prefix string) (string, error) {
 
 	goFileName := "" + strcase.ToSnake(prefix) + ".templ"
 
-	packageTmpl := strings.ReplaceAll(string(data), "$PACKAGE-NAME$", strcase.ToDelimited(prefix, 0))
+	packageTmpl := strings.ReplaceAll(string(data), "$PACKAGE-NAME$", strcase.ToSnake(prefix))
 	fileDir := cwd + "/" + strcase.ToSnake(prefix)
 	filePath := fileDir + "/" + goFileName
 	fmt.Println("Generating package: ", fileDir)
